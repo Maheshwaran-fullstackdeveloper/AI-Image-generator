@@ -66,8 +66,10 @@ export default function ProjectsPage() {
 
         // Set image projects
         if (projectsResult.success && projectsResult.imageProjects) {
-          setImageProjects(projectsResult.imageProjects as ImageProject[]);
-          setFilteredProjects(projectsResult.imageProjects as ImageProject[]);
+          const projects =
+            (projectsResult.imageProjects as unknown as ImageProject[]) ?? [];
+          setImageProjects(projects);
+          setFilteredProjects(projects);
         }
       } catch (error) {
         console.error("Image projects initialization failed:", error);
