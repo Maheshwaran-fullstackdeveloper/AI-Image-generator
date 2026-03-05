@@ -52,43 +52,43 @@ export default function DashboardPage() {
     thisMonth: 0,
     thisWeek: 0,
   });
+
   const [user, setUser] = useState<{
     name?: string;
     createdAt?: string | Date;
   } | null>(null);
+
   const router = useRouter();
 
   useEffect(() => {
     const initializeDashboard = async () => {
       try {
-        // Run session and image projects fetch in parallel
         const [sessionResult, imageResult] = await Promise.all([
           authClient.getSession(),
           getUserImageProjects(),
         ]);
 
-        // Set user from session
         if (sessionResult?.data?.user) {
           setUser(sessionResult.data.user);
         }
 
-        // Set image projects
-        if (imageResult.success && imageResult.imageProjects) {
-          setImageProjects(imageResult.imageProjects as ImageProject[]);
-        }
+        // FIXED TYPE ISSUE HERE
+        const projects =
+          (imageResult.imageProjects as unknown as ImageProject[]) ?? [];
 
-        // Calculate stats
-        const images = (imageResult.imageProjects as ImageProject[]) ?? [];
+        if (imageResult.success) {
+          setImageProjects(projects);
+        }
 
         const now = new Date();
         const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
         const thisWeek = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
         setUserStats({
-          totalImageProjects: images.length,
-          thisMonth: images.filter((p) => new Date(p.createdAt) >= thisMonth)
+          totalImageProjects: projects.length,
+          thisMonth: projects.filter((p) => new Date(p.createdAt) >= thisMonth)
             .length,
-          thisWeek: images.filter((p) => new Date(p.createdAt) >= thisWeek)
+          thisWeek: projects.filter((p) => new Date(p.createdAt) >= thisWeek)
             .length,
         });
       } catch (error) {
@@ -119,7 +119,7 @@ export default function DashboardPage() {
       <RedirectToSignIn />
       <SignedIn>
         <div className="space-y-6">
-          {/* Header Section */}
+          {/* Header */}
           <div className="space-y-2">
             <h1 className="from-primary to-primary/70 bg-gradient-to-r bg-clip-text text-2xl font-bold tracking-tight text-transparent sm:text-3xl">
               Welcome back{user?.name ? `, ${user.name}` : ""}!
@@ -129,10 +129,10 @@ export default function DashboardPage() {
             </p>
           </div>
 
-          {/* Stats Cards */}
+          {/* Stats */}
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <Card className="relative overflow-hidden">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium">
                   Total Images
                 </CardTitle>
@@ -148,8 +148,8 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
 
-            <Card className="relative overflow-hidden">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium">
                   This Month
                 </CardTitle>
@@ -165,8 +165,8 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
 
-            <Card className="relative overflow-hidden">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium">This Week</CardTitle>
                 <TrendingUp className="h-4 w-4 text-green-500" />
               </CardHeader>
@@ -178,8 +178,8 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
 
-            <Card className="relative overflow-hidden">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium">
                   Member Since
                 </CardTitle>
@@ -188,9 +188,7 @@ export default function DashboardPage() {
               <CardContent>
                 <div className="text-2xl font-bold text-yellow-600">
                   {user?.createdAt
-                    ? new Date(
-                        user.createdAt as string | number | Date,
-                      ).toLocaleDateString("en-US", {
+                    ? new Date(user.createdAt).toLocaleDateString("en-US", {
                         month: "short",
                         year: "numeric",
                       })
@@ -209,13 +207,14 @@ export default function DashboardPage() {
                 Quick Actions
               </CardTitle>
             </CardHeader>
+
             <CardContent>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 <Button
                   onClick={() => router.push("/dashboard/create")}
-                  className="group h-auto flex-col gap-2 bg-purple-600 p-6 hover:bg-purple-700"
+                  className="h-auto flex-col gap-2 bg-purple-600 p-6 hover:bg-purple-700"
                 >
-                  <ImageIcon className="h-8 w-8 transition-transform group-hover:scale-110" />
+                  <ImageIcon className="h-8 w-8" />
                   <div className="text-center">
                     <div className="font-semibold">Text-to-Image</div>
                     <div className="text-xs opacity-80">
@@ -227,9 +226,9 @@ export default function DashboardPage() {
                 <Button
                   onClick={() => router.push("/dashboard/projects")}
                   variant="outline"
-                  className="group hover:bg-muted h-auto flex-col gap-2 p-6"
+                  className="h-auto flex-col gap-2 p-6"
                 >
-                  <ImageIcon className="h-8 w-8 transition-transform group-hover:scale-110" />
+                  <ImageIcon className="h-8 w-8" />
                   <div className="text-center">
                     <div className="font-semibold">View All Images</div>
                     <div className="text-xs opacity-70">
@@ -241,9 +240,9 @@ export default function DashboardPage() {
                 <Button
                   onClick={() => router.push("/dashboard/settings")}
                   variant="outline"
-                  className="group hover:bg-muted h-auto flex-col gap-2 p-6"
+                  className="h-auto flex-col gap-2 p-6"
                 >
-                  <Settings className="h-8 w-8 transition-transform group-hover:scale-110" />
+                  <Settings className="h-8 w-8" />
                   <div className="text-center">
                     <div className="font-semibold">Account Settings</div>
                     <div className="text-xs opacity-70">
@@ -255,54 +254,35 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          {/* Recent Image Projects */}
+          {/* Recent Projects */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
-                <ImageIcon className="h-5 w-5 text-purple-600" />
-                Recent Image Projects
-              </CardTitle>
+              <CardTitle>Recent Image Projects</CardTitle>
+
               {imageProjects.length > 0 && (
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => router.push("/dashboard/projects")}
-                  className="text-purple-600 hover:text-purple-700"
                 >
                   View All <ArrowRight className="ml-1 h-4 w-4" />
                 </Button>
               )}
             </CardHeader>
+
             <CardContent>
               {imageProjects.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <div className="relative mb-4">
-                    <div className="border-muted bg-muted/20 flex h-20 w-20 items-center justify-center rounded-full border-2 border-dashed">
-                      <ImageIcon className="text-muted-foreground h-8 w-8" />
-                    </div>
-                  </div>
-                  <h3 className="mb-2 text-lg font-semibold">
-                    No image projects yet
-                  </h3>
-                  <p className="text-muted-foreground mb-4 text-sm">
-                    Start generating images from text prompts
-                  </p>
-                  <Button
-                    onClick={() => router.push("/dashboard/create")}
-                    className="gap-2 bg-purple-600 hover:bg-purple-700"
-                  >
-                    <ImageIcon className="h-4 w-4" />
-                    Create Your First Image
-                  </Button>
-                </div>
+                <p className="text-muted-foreground text-sm">
+                  No image projects yet.
+                </p>
               ) : (
                 <div className="space-y-3">
                   {imageProjects.slice(0, 5).map((project) => (
                     <div
                       key={project.id}
-                      className="group hover:bg-muted/50 flex items-center gap-4 rounded-lg border p-4 transition-all hover:shadow-sm"
+                      className="flex items-center gap-4 rounded-lg border p-4"
                     >
-                      <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg border bg-purple-100">
+                      <div className="relative h-12 w-12 overflow-hidden rounded-lg border">
                         <Image
                           src={project.imageUrl}
                           alt={project.prompt}
@@ -311,38 +291,31 @@ export default function DashboardPage() {
                           className="object-contain"
                         />
                       </div>
-                      <div className="min-w-0 flex-1">
-                        <h4 className="truncate text-sm font-medium">
-                          {project.name ??
-                            project.prompt.substring(0, 60) +
-                              (project.prompt.length > 60 ? "..." : "")}
+
+                      <div className="flex-1">
+                        <h4 className="text-sm font-medium">
+                          {project.name ?? project.prompt.slice(0, 60)}
                         </h4>
-                        <div className="mt-1 flex items-center gap-2">
-                          <p className="text-muted-foreground text-xs">
-                            {project.width}×{project.height}
-                          </p>
-                          <span className="text-muted-foreground text-xs">
-                            •
-                          </span>
-                          <p className="text-muted-foreground text-xs">
-                            {new Date(project.createdAt).toLocaleDateString()}
-                          </p>
-                        </div>
+
+                        <p className="text-muted-foreground text-xs">
+                          {project.width}×{project.height}
+                        </p>
                       </div>
-                      <div className="shrink-0">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() =>
-                            downloadImage(
-                              project.imageUrl,
-                              `ai-image-${project.prompt.slice(0, 30).trim().replace(/\s+/g, "-")}.png`,
-                            )
-                          }
-                        >
-                          Open
-                        </Button>
-                      </div>
+
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          downloadImage(
+                            project.imageUrl,
+                            `ai-image-${project.prompt
+                              .slice(0, 30)
+                              .replace(/\s+/g, "-")}.png`,
+                          )
+                        }
+                      >
+                        Open
+                      </Button>
                     </div>
                   ))}
                 </div>
