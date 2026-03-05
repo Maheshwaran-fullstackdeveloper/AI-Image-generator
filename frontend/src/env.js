@@ -15,6 +15,8 @@ export const env = createEnv({
     BETTER_AUTH_URL: z.string().url(),
     POLAR_ACCESS_TOKEN: z.string(),
     POLAR_WEBHOOK_SECRET: z.string(),
+    MONGODB_URL: z.string().url(),
+    MODAL_ENDPOINT: z.string().url().optional(),
   },
 
   /**
@@ -37,6 +39,8 @@ export const env = createEnv({
     BETTER_AUTH_URL: process.env.BETTER_AUTH_URL,
     POLAR_ACCESS_TOKEN: process.env.POLAR_ACCESS_TOKEN,
     POLAR_WEBHOOK_SECRET: process.env.POLAR_WEBHOOK_SECRET,
+    MONGODB_URL: process.env.MONGODB_URL,
+    MODAL_ENDPOINT: process.env.MODAL_ENDPOINT,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
   /**

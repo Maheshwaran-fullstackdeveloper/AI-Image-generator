@@ -1,0 +1,16 @@
+modal
+pydantic
+fastapi[standard]
+requests
+
+
+torch==2.6.0
+
+git+https://github.com/huggingface/transformers
+accelerate==1.4.0
+huggingface-hub
+pillow==11.1.0
+pymongo
+dnspython
+
+git+https://github.com/huggingface/diffusers
