@@ -30,7 +30,7 @@ export default function RootLayout({
       <SidebarProvider>
         <AppSidebar />
         <SidebarInset className="flex h-screen flex-col">
-          <header className="bg-background/95 supports-[backdrop-filter]:bg-background/60 border-border/40 sticky top-0 z-10 border-b px-6 py-3 shadow-sm backdrop-blur">
+          <header className="bg-background/95 supports-backdrop-filter:bg-background/60 border-border/40 sticky top-0 z-10 border-b px-6 py-3 shadow-sm backdrop-blur">
             <div className="flex shrink-0 grow items-center gap-3">
               <SidebarTrigger className="hover:bg-muted -ml-1 h-8 w-8 transition-colors" />
               <Separator
