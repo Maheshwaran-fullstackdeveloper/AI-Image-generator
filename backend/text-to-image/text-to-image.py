@@ -32,9 +32,9 @@ class Req(BaseModel):
 
 @app.cls(
     image=image,
-    gpu=os.getenv("MODAL_GPU", "L40S"),
-    timeout=600,
-    scaledown_window=600,
+    gpu=os.getenv("MODAL_GPU", "A10G"),
+    timeout=300,
+    scaledown_window=60,
     volumes={"/models": VOL},
     secrets=SECRETS,
 )
@@ -55,7 +55,7 @@ class ZImageServer:
             token=self.token,
         ).to("cuda")
 
-    @modal.fastapi_endpoint(method="POST", docs=True)
+    @modal.fastapi_endpoint(path="/", method="POST", docs=True)
     def generate_image(self, r: Req):
         from pymongo import MongoClient
         from datetime import datetime

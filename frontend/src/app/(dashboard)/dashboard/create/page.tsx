@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import ImageSettings from "~/components/image-settings";
 import PromptInput from "~/components/prompt-input";
 import ImageHistory from "~/components/image-history";
+import { downloadImage } from "~/lib/utils";
 
 export interface GeneratedImage {
   projectId: string;
@@ -191,7 +192,12 @@ export default function CreatePage() {
                   negativePrompt={negativePrompt}
                   setNegativePrompt={setNegativePrompt}
                   currentImage={currentImage}
-                  onDownload={(img) => window.open(img.imageUrl, "_blank")}
+                  onDownload={(img) =>
+                    downloadImage(
+                      img.imageUrl,
+                      `ai-image-${img.prompt.slice(0, 30).trim().replace(/\s+/g, "-")}.png`,
+                    )
+                  }
                 />
               </div>
             </div>
@@ -200,7 +206,12 @@ export default function CreatePage() {
           {/* History Section */}
           <ImageHistory
             generatedImages={generatedImages}
-            onDownload={(img) => window.open(img.imageUrl, "_blank")}
+            onDownload={(img) =>
+              downloadImage(
+                img.imageUrl,
+                `ai-image-${img.prompt.slice(0, 30).trim().replace(/\s+/g, "-")}.png`,
+              )
+            }
           />
         </div>
       </SignedIn>
