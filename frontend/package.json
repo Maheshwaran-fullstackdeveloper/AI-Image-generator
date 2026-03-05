@@ -21,7 +21,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@better-auth/passkey": "^1.5.0",
+    "@better-auth/passkey": "^1.5.3",
     "@better-auth/prisma-adapter": "^1.5.3",
     "@captchafox/react": "^1.11.0",
     "@daveyplate/better-auth-ui": "^3.3.15",
