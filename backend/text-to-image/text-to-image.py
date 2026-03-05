@@ -7,8 +7,7 @@ app = modal.App("ai-image-generator-backend")
 
 # Turbo-only
 MODEL_ID = "Tongyi-MAI/Z-Image-Turbo"
-MONGO_SECRET = modal.Secret.from_name("ai-image-generator-mongodb-secret")
-SECRETS = [MONGO_SECRET]
+SECRETS = []
 VOL = modal.Volume.from_name(os.getenv("MODAL_HF_CACHE_VOLUME_NAME", "hf-hub-cache"), create_if_missing=True)
 
 image = (
@@ -55,10 +54,8 @@ class ZImageServer:
             token=self.token,
         ).to("cuda")
 
-    @modal.fastapi_endpoint(path="/", method="POST", docs=True)
+    @modal.fastapi_endpoint(method="POST", docs=True)
     def generate_image(self, r: Req):
-        from pymongo import MongoClient
-        from datetime import datetime
         import base64
         from io import BytesIO
 
@@ -88,31 +85,5 @@ class ZImageServer:
         img.save(buffered, format="PNG")
         img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
         data_url = f"data:image/png;base64,{img_str}"
-
-        # Store in MongoDB
-        if mongo_url:
-            try:
-                client = MongoClient(mongo_url)
-                db = client["image_generator"]
-                collection = db["images"]
-                
-                image_data = {
-                    "userId": r.userId,
-                    "prompt": r.prompt,
-                    "imageUrl": data_url, # Now storing the Base64 data URL
-                    "seed": seed,
-                    "modelId": MODEL_ID,
-                    "createdAt": datetime.utcnow(),
-                    "metadata": {
-                        "width": r.width,
-                        "height": r.height,
-                        "steps": steps,
-                        "guidanceScale": scale,
-                    }
-                }
-                collection.insert_one(image_data)
-                print(f"Successfully stored image in MongoDB for user {r.userId}")
-            except Exception as e:
-                print(f"Error storing in MongoDB: {e}")
 
         return {"image_url": data_url, "seed": seed, "model_id": MODEL_ID}
